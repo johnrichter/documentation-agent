@@ -1,6 +1,6 @@
 # documentation-agent
 
-Agent(s) and tooling for authoring and maintaining documentation. (confirm/refine)
+Agent(s) and tooling for authoring and maintaining documentation.
 
 ## Claude Code setup
 

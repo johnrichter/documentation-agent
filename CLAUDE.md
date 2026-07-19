@@ -1,6 +1,6 @@
 # documentation-agent
 
-> **Purpose:** Agent(s) and tooling for authoring and maintaining documentation. (confirm/refine)
+> **Purpose:** Agent(s) and tooling for authoring and maintaining documentation.
 
 One of the sibling repos under `psa-platform`. Worked on directly — not through the PSA `workspace`. Outside `workspace`, Claude has no PSA identity; only the general conventions below apply.
 
