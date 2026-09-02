@@ -1,13 +1,13 @@
 ---
-name: Docs Knowledge Agent — effort index
-description: "Routing index for the docs knowledge agent effort: the build plan and resume point, and the Go-to-Rust rewrite record whose body still names open work its summary calls complete."
-id: index:datadog-docs-knowledge-agent:effort
+name: Documentation Agent — effort index
+description: "Routing index for the documentation agent effort: the build plan and resume point, and the Go-to-Rust rewrite record whose body still names open work its summary calls complete."
+id: index:documentation-agent:effort
 tags: [type:index, topic:tooling, status:complete, privacy:public]
-links: [project:tooling:datadog-docs-knowledge-agent]
+links: [project:tooling:documentation-agent]
 updated: 2026-09-02T00:00:00Z
 ---
 
-# Docs Knowledge Agent — effort index
+# Documentation Agent — effort index
 
 Two planning documents for a citation-backed question-answering agent over public product documentation.
 

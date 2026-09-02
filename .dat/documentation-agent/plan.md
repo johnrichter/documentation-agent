@@ -1,7 +1,7 @@
 ---
 name: Datadog Docs Knowledge Agent — Build Plan
 description: "Build plan and resume point for the Datadog Docs Knowledge Agent — citation-backed Q&A over all public Datadog docs. One monolithic corpus, suite→product→feature taxonomy plus suite-less platform topics, query-time site resolution (no 8× corpus copies), tab/selector-aware answers, cross-suite retrieval fan-out, per-citation verification."
-id: project:tooling:datadog-docs-knowledge-agent
+id: project:tooling:documentation-agent
 tags:
   - type:project
   - topic:tooling
@@ -67,7 +67,7 @@ updated: 2026-06-19T00:55:00Z
 - **Multidimensional taxonomy:** `suite` (optional) → `product` → `feature` (optional), **plus suite-less platform topics** (tagging, dashboards, monitors, notebooks, administration, RBAC, billing, API/SDK, …). Docs nav ≠ logical taxonomy (e.g. "Administrator's Guide" is not under an "Administration" section), so taxonomy is a **curated overlay**, not derived from file paths → §3.
 - **Tabs are first-class.** Humans read the wrong instructions because they have the wrong tab selected. The agent flattens *all* tabs, answers for the implied branch, and **names the other branches**. Generalize today's `lang`/`infra` into a `selectors` map → §4.
 - **Query-time site resolution.** Stop baking 8 per-site corpora; store one site-agnostic corpus and resolve region values at answer time. Collapses embedding + LFS cost ~8× → §6.
-- **Migration shape (D0): PARALLEL MODULE** (user decision, 2026-06-18). Built `datadog-docs-knowledge-agent` (new module `ddocs`) **alongside** the then-frozen `apm-docs-knowledge-agent`; copied the engine, generalized, validated, then **deprecated and deleted the APM-only agent (2026-06-19)** once the whole-docs agent passed its eval gate and APM-as-a-slice matched. → §9 D0.
+- **Migration shape (D0): PARALLEL MODULE** (user decision, 2026-06-18). Built `documentation-agent` (new module `ddocs`) **alongside** the then-frozen `apm-docs-knowledge-agent`; copied the engine, generalized, validated, then **deprecated and deleted the APM-only agent (2026-06-19)** once the whole-docs agent passed its eval gate and APM-as-a-slice matched. → §9 D0.
 
 ---
 
@@ -226,7 +226,7 @@ The 12-case APM eval becomes a **stratified suite** — the trust gate is what l
 ## 9. Build phases
 
 **D0 — migration shape: PARALLEL MODULE (decided 2026-06-18).**
-- Build a new module `ddocs` under `.claude/agents/datadog-docs-knowledge-agent/`, **alongside** the frozen `apm-docs-knowledge-agent` (module `apmdocs`).
+- Build a new module `ddocs` under `.claude/agents/documentation-agent/`, **alongside** the frozen `apm-docs-knowledge-agent` (module `apmdocs`).
 - **Seed by copying** the validated engine (`resolve/ retrieve/ agent/ service/ mcp/ eval/`, `cmd/`), then generalize on the copy — APM agent is never destabilized during the build.
 - **Deprecation path (DONE 2026-06-19):** whole-docs passed its eval gate (§8) and APM-as-a-slice reproduced the old APM agent's answers, so `apm-docs-knowledge-agent` (module `apmdocs` + subagent face) was retired and deleted. The parallel-module window is closed — `ddocs` is the only docs codebase now.
 - **Cost of this choice (accepted):** engine duplication + a window where bug-fixes may need porting between the two. Mitigate by minimizing divergence in the copied core and porting only what the generalization requires.
@@ -239,7 +239,7 @@ The 12-case APM eval becomes a **stratified suite** — the trust gate is what l
 | **P2b ✅ DONE** | **Taxonomy-filtered retrieval** — explicit, deterministic suite/product `Filter` on retrieval (`SearchFiltered`), wired through CLI (`-suite`/`-product`), service (`AnswerFiltered`/`AnswerSuite`), and the MCP `suite` arg. **Validated:** `suite=apm` on the Python question drops all AppSec docs and the answer cites the canonical tracing docs (was the eval's top precision finding). Unit-tested. |
 | **P2c ✅ DONE** | **Facet fan-out** (§2/§5): `SearchFanout` retrieves per-suite and merges by reciprocal rank, so a cross-suite question is balanced across facets before a single rerank+generation. Service `AnswerFanout` + CLI `-suites`. **Validated:** traces↔logs 7/2→5/4, RUM↔logs 7/1→6/6 (suite skew fixed). |
 | **P3 ✅ DONE** | **Expanded eval** (§8) — the go/no-go trust gate. **Deterministic, no LLM judge**: golden-citation assertions, an offline retrieval gate (golden-doc-in-pool, ~7s, never flakes) + a full gate (citation-integrity + site facts + refusals). ~100 stratified cases (every suite, platform topics, cross-suite, selector/tab, all 8 sites, refusals). **Full gate 98/98, citation-integrity 100%; retrieval gate 85/0/13.** |
-| **P4 ✅ DONE** | **Faces.** MCP tool renamed to `query_datadog_docs` (whole-docs; full filter + fan-out args) and server identity to `datadog-docs-knowledge-agent`. **One** subagent face: `.claude/agents/datadog-docs-knowledge-agent.md` (scopes per question via the filter flags); the per-suite-face clone pattern is documented inside it. Per-suite faces (logs-expert, etc.) are trivial clones — mint as PSAs ask. (An `apm-docs-expert` exemplar was added then retired to avoid confusion with the frozen old APM agent, which stays until cutover.) |
+| **P4 ✅ DONE** | **Faces.** MCP tool renamed to `query_datadog_docs` (whole-docs; full filter + fan-out args) and server identity to `documentation-agent`. **One** subagent face: `.claude/agents/documentation-agent.md` (scopes per question via the filter flags); the per-suite-face clone pattern is documented inside it. Per-suite faces (logs-expert, etc.) are trivial clones — mint as PSAs ask. (An `apm-docs-expert` exemplar was added then retired to avoid confusion with the frozen old APM agent, which stays until cutover.) |
 | **P5 ✅ DONE** | **Freshness at scale.** Incremental refresh re-embeds only changed chunks (content-hash cache) AND now **prunes orphaned vectors** (deleted/changed chunks) so the committed cache stays bounded; build reports new/reused/pruned + the committed LFS footprint. **Validated:** shrinking a corpus pruned 661 orphans, embcache 7.9→5.9MB, unchanged refresh ran in 172ms. (Scheduling + `git pull` live in the P7 skill.) |
 | **P6** | **Slack auto-responder** (in-cluster; can use gateway embeddings there) — now docs-wide, not APM-only. |
 | **P7 ✅ DONE** | **Rebuild/refresh skill** — `/refresh-docs-agent` (`.claude/skills/refresh-docs-agent/`, opus/medium). Two modes: `refresh` (git pull docs → incremental re-embed → prune → retrieval gate) and `rebuild` (from scratch → full eval gate). Verifies prerequisites before the embed, builds into the committed corpus location, reports new/reused/pruned + LFS footprint, and commits only on the operator's go-ahead. The durable "keep it current" surface over the P1–P5 machinery. |
@@ -270,5 +270,5 @@ The 12-case APM eval becomes a **stratified suite** — the trust gate is what l
 
 ## 12. Tracker / internal tracking
 
-New effort: **`datadog-docs-knowledge-agent`** — generalizes `apm-docs-knowledge-agent` . Foundational; supersedes the docs-half scope for cross-suite work and feeds `product-alias-docs-gap-analysis`, `expert-agent-fleet`, specialist tooling. Track in the effort tracker + an internal tracking ticket. Mark in-progress when D0 is decided and P0 starts.
+New effort: **`documentation-agent`** — generalizes `apm-docs-knowledge-agent` . Foundational; supersedes the docs-half scope for cross-suite work and feeds `product-alias-docs-gap-analysis`, `expert-agent-fleet`, specialist tooling. Track in the effort tracker + an internal tracking ticket. Mark in-progress when D0 is decided and P0 starts.
 

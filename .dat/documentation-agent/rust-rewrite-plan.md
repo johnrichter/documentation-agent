@@ -9,7 +9,7 @@ tags:
   - status:complete
   - privacy:public
 links:
-  - agent:tooling:datadog-docs-knowledge-agent
+  - agent:tooling:documentation-agent
   - skill:workspace:refresh-docs-agent
   - agent:workflows:model-tiering
   - agent:workflows:git
@@ -154,7 +154,7 @@ Cutover done; agent live. **Status (2026-06-26):**
 
 **Phase 8 — code-complete ✅.** All 7 tasks done. Empirical acceptance items outstanding: GPU re-embed timing, 85/85 on GPU vectors, `parity cross-device` run, `cargo check --features cuda` on CUDA host, ettin reranker steps 6–7.
 
-**Metal GPU re-embed — RESOLVED, Metal works (2026-06-26, Phase 7–8 review on branch `feat/datadog-docs-agent-p78`):** the earlier `Metal error no metal implementation for layer-norm` was NOT a candle limitation — it was a local Cargo feature-wiring omission. The workspace `metal` feature enabled `candle-core/metal` but never `candle-nn/metal` (which owns the LayerNorm Metal kernel that ships in candle 0.10.2). Fix: enable `candle-nn/metal` + `candle-transformers/metal` on the embed + rerank crates (upstream-confirmed, [huggingface/candle#2463](https://github.com/huggingface/candle/issues/2463)). A SECOND gap then surfaced empirically: candle 0.10.2's Metal backend has no fp16 `where_cond` kernel (the attention-mask select), so the fp16 model failed with `Metal where_cond U32 F16 not implemented`; the embedder (and reranker backbone) now force **fp32 on Metal** (`device.is_metal() → F32`). Verified on Apple Silicon: full embed runs end-to-end on Metal, ~2.4× faster than CPU on a 150-doc sample, cross-device cosine 0.999953 (≥0.9999 gate). Default device flipped CPU→**auto** (GPU-preferred, loud CPU fallback). Reranker-on-Metal is prophylactic (ettin asset host-gated); full-corpus `--device metal` re-embed still to be run on an asset host. **Metal acceleration is SUPPORTED, not blocked.**
+**Metal GPU re-embed — RESOLVED, Metal works (2026-06-26, Phase 7–8 review on branch `feat/documentation-agent-p78`):** the earlier `Metal error no metal implementation for layer-norm` was NOT a candle limitation — it was a local Cargo feature-wiring omission. The workspace `metal` feature enabled `candle-core/metal` but never `candle-nn/metal` (which owns the LayerNorm Metal kernel that ships in candle 0.10.2). Fix: enable `candle-nn/metal` + `candle-transformers/metal` on the embed + rerank crates (upstream-confirmed, [huggingface/candle#2463](https://github.com/huggingface/candle/issues/2463)). A SECOND gap then surfaced empirically: candle 0.10.2's Metal backend has no fp16 `where_cond` kernel (the attention-mask select), so the fp16 model failed with `Metal where_cond U32 F16 not implemented`; the embedder (and reranker backbone) now force **fp32 on Metal** (`device.is_metal() → F32`). Verified on Apple Silicon: full embed runs end-to-end on Metal, ~2.4× faster than CPU on a 150-doc sample, cross-device cosine 0.999953 (≥0.9999 gate). Default device flipped CPU→**auto** (GPU-preferred, loud CPU fallback). Reranker-on-Metal is prophylactic (ettin asset host-gated); full-corpus `--device metal` re-embed still to be run on an asset host. **Metal acceleration is SUPPORTED, not blocked.**
 
 **Rewrite COMPLETE (2026-06-27). Remaining items below are optional enhancements, none blocking:**
 - **Phase 8 full-corpus Metal re-embed wall-clock** — Metal is wired + working; a full `--device metal` re-embed timing + byte-stability measurement was never formally captured (the corpus ships from the proven Go/ollama-parity embeddings; query parity verified). Optional.
