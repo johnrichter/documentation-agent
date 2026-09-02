@@ -10,15 +10,13 @@ tags:
   - status:complete
   - privacy:public
 links:
-  - idea:tooling:apm-knowledge-agents
+  - idea:tooling:apm-the agent
   - index:workspace:efforts
   - knowledge-base:code-repositories:datadog-public-source-code
 updated: 2026-06-19T00:55:00Z
 ---
 
 # Datadog Docs Knowledge Agent — Build Plan
-
-> **Note.** This copy is scrubbed for public release. Every reference to a vendor-internal source, identifier, or measurement is removed, and the technical design is unchanged. The **agent's answers** are built from public docs and are customer-shareable; this plan is not. > > **Relationship to the APM agent:** this **evolves** the shipped `apm-docs-knowledge-agent` (module `apmdocs`) into a whole-docs agent. The APM build (P1–P4 + hardening, all validated) is the **proven slice and the de-risking reference** — every core mechanism (resolver, hybrid retrieval, cached-prefix generation, citation verify, MCP/subagent surfaces) already works. This plan changes **what we index** and **how we slice it**, not the generation engine. APM remains the first validated suite and ships as one **thin subagent face** over the generalized backend.
 
 ## 0. RESUME HERE (handoff state)
 
@@ -90,7 +88,7 @@ The "monolith vs. agent-teams" question conflates **two independent axes**:
 
 **Decision: one corpus + one agent, with taxonomy as retrieval metadata.** Scale the *index*, not the *agent count*. You still get "agent-teams" UX for free — each Claude Code subagent (`apm-expert`, `security-expert`) is a thin `.md` wrapper calling the same backend with a taxonomy filter. **One backend, many faces.**
 
-**Revisit agent-teams only on a measured trigger:** (a) eval shows retrieval precision collapses at full-docs scale *even with* taxonomy filtering, or (b) the PSA org wants per-suite *ownership* (an org reason, not a technical one).
+**Revisit agent-teams only on a measured trigger:** (a) eval shows retrieval precision collapses at full-docs scale *even with* taxonomy filtering, or (b) the the owning team org wants per-suite *ownership* (an org reason, not a technical one).
 
 ---
 
@@ -272,5 +270,5 @@ The 12-case APM eval becomes a **stratified suite** — the trust gate is what l
 
 ## 12. Tracker / internal tracking
 
-New effort: **`datadog-docs-knowledge-agent`** — generalizes `apm-docs-knowledge-agent` . Foundational; supersedes the docs-half scope for cross-suite work and feeds `product-alias-docs-gap-analysis`, `expert-agent-fleet`, SME tooling. Track in `<internal-tracking>` + an internal tracking ticket. Mark in-progress when D0 is decided and P0 starts.
+New effort: **`datadog-docs-knowledge-agent`** — generalizes `apm-docs-knowledge-agent` . Foundational; supersedes the docs-half scope for cross-suite work and feeds `product-alias-docs-gap-analysis`, `expert-agent-fleet`, specialist tooling. Track in the effort tracker + an internal tracking ticket. Mark in-progress when D0 is decided and P0 starts.
 

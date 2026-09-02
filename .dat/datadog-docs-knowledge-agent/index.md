@@ -1,6 +1,6 @@
 ---
 name: Docs Knowledge Agent — effort index
-description: "Routing index for the docs knowledge agent effort in this repository: the build plan and the completed Go-to-Rust rewrite record, with a note on what this scrubbed copy omits."
+description: "Routing index for the docs knowledge agent effort: the build plan and resume point, and the Go-to-Rust rewrite record whose body still names open work its summary calls complete."
 id: index:datadog-docs-knowledge-agent:effort
 tags: [type:index, topic:tooling, status:complete, privacy:public]
 links: [project:tooling:datadog-docs-knowledge-agent]
@@ -14,10 +14,8 @@ Two planning documents for a citation-backed question-answering agent over publi
 - `plan.md` — the build plan and resume point. One monolithic corpus, with query-time site resolution rather than one corpus copy per site.
 - `rust-rewrite-plan.md` — the Go-to-Rust rewrite record. Its summary line declares the rewrite complete, and its body names work that is still open. Read the body, not the summary.
 
-## What this copy omits
-
-This is a scrubbed copy, prepared for public release. Every reference to a vendor-internal source, identifier, or measurement is removed, and the technical design is unchanged.
-
 ## Open items
 
-Findings swept out of these documents are filed as LED entries in this repository's own `.dat/feedback-register.json`. The documents stay as the historical record.
+Findings from these documents are filed as entries in this repository's own `.dat/feedback-register.json`. The documents stay as the historical record.
+
+Six of the eight come from the rewrite record's body: measurements never taken, phases never started, and shipped binaries never executed on their own platforms.
