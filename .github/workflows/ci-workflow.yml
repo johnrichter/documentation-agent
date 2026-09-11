@@ -1,0 +1,11 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci-workflow:
+    uses: johnrichter/claude-shared-tooling/.github/workflows/ci-workflow.yml@v0.4.0
+    with:
+      target_root: "."
