@@ -1,0 +1,11 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci-rust:
+    uses: johnrichter/claude-shared-tooling/.github/workflows/ci-rust.yml@v0.4.0
+    with:
+      crate_dir: "."
