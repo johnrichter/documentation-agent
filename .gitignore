@@ -237,6 +237,15 @@ tmp/
 *.pid
 .cache/
 
+# Test coverage output — Python's default data file, and the XML report
+# some tooling reads from it.
+.coverage
+coverage.xml
+
+# language-tools per-check log output (the CI templates' --log-dir target,
+# and where a local re-probe writes) — runner/local artifact, never repo content.
+.language-tools/
+
 ###############################################################################
 # Claude Code
 ###############################################################################
